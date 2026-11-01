@@ -27,3 +27,5 @@ Website không yêu cầu đăng nhập. Bất kỳ ai mở được website đ�
 ## Cập nhật nhân sự và làm tròn
 - Vị trí Buồng phòng đã đổi thành Lễ tân – Linh; giữ nguyên mức lương 5.000.000 đ/tháng, định mức 26 công và nghỉ Thứ 7 hằng tuần.
 - Tiền lương và đơn giá hiển thị được làm tròn đến 1.000 đồng gần nhất.
+
+- Nhập số ngày nghỉ thêm ngoài ngày nghỉ cố định hằng tuần cho từng nhân viên; số ngày này được trừ khỏi ngày công trước khi tính lương.

@@ -20,6 +20,7 @@ button:disabled{opacity:.5;cursor:not-allowed}.primary{background:var(--blue);co
 .controls{display:grid;grid-template-columns:1fr 1fr;gap:15px;background:#f8fafc;border:1px solid var(--line);padding:17px;border-radius:13px}
 label{display:block;font-size:13px;font-weight:700;color:#475569;margin:13px 0 7px}
 input[type=date]{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;font-size:15px;background:white}
+.leave-input{width:76px;padding:7px 8px;border:1px solid #cbd5e1;border-radius:7px;text-align:right;font-size:14px;font-weight:700;color:#172033}
 .note{font-size:13px;color:var(--muted);line-height:1.5;margin:13px 2px 18px}
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 .card{border:1px solid var(--line);border-radius:14px;padding:17px}
@@ -62,6 +63,7 @@ input[type=date]{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:
       <div class="rows"><span>Đơn giá / ngày công</span><strong id="sang-rate">—</strong></div>
       <div class="rows"><span>Tổng ngày trong kỳ</span><strong id="sang-calendar">—</strong></div>
       <div class="rows"><span>Ngày nghỉ Chủ nhật</span><strong id="sang-off">—</strong></div>
+      <div class="rows"><span>Ngày nghỉ thêm trong kỳ</span><strong><input id="sang-extra-leave" type="number" min="0" step="1" value="0" class="leave-input" aria-label="Số ngày nghỉ thêm của Sang"></strong></div>
       <div class="rows"><span>Ngày công thường</span><strong id="sang-days">—</strong></div>
       <div class="bonus-check"><label><input type="checkbox" id="sang-bonus"> Thưởng chuyên cần (cộng thêm 1 công)</label></div>
       <div class="total"><span>TỔNG LƯƠNG</span><b id="sang-pay">—</b></div>
@@ -73,6 +75,7 @@ input[type=date]{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:
       <div class="rows"><span>Đơn giá / ngày công</span><strong id="room-rate">—</strong></div>
       <div class="rows"><span>Tổng ngày trong kỳ</span><strong id="room-calendar">—</strong></div>
       <div class="rows"><span>Ngày nghỉ Thứ 7</span><strong id="room-off">—</strong></div>
+      <div class="rows"><span>Ngày nghỉ thêm trong kỳ</span><strong><input id="room-extra-leave" type="number" min="0" step="1" value="0" class="leave-input" aria-label="Số ngày nghỉ thêm của Linh"></strong></div>
       <div class="rows"><span>Ngày công thường</span><strong id="room-days">—</strong></div>
       <div class="bonus-check"><label><input type="checkbox" id="room-bonus"> Thưởng chuyên cần (cộng thêm 1 công)</label></div>
       <div class="total"><span>TỔNG LƯƠNG</span><b id="room-pay">—</b></div>
@@ -128,15 +131,23 @@ function calculate(){
   if(end<start){$("dateError").textContent="Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.";return null;}
   $("dateError").textContent="";
   const sang=countPeriod(start,end,0),room=countPeriod(start,end,6);
+  const sangLeave=Number($("sang-extra-leave").value||0),roomLeave=Number($("room-extra-leave").value||0);
+  if(!Number.isInteger(sangLeave)||!Number.isInteger(roomLeave)||sangLeave<0||roomLeave<0){
+    $("dateError").textContent="Số ngày nghỉ thêm phải là số nguyên không âm.";return null;
+  }
+  if(sangLeave>sang.work||roomLeave>room.work){
+    $("dateError").textContent="Số ngày nghỉ thêm không được lớn hơn số ngày làm việc sau khi trừ ngày nghỉ cố định.";return null;
+  }
   const sr=7000000/26,rr=5000000/26,sb=$("sang-bonus").checked?1:0,rb=$("room-bonus").checked?1:0;
+  const sangNet=sang.work-sangLeave,roomNet=room.work-roomLeave;
   const result={from:start,to:end,
-    sang:{calendar:sang.total,off:sang.off,baseDays:sang.work,bonusDays:sb,totalDays:sang.work+sb,total:roundThousand(sr*(sang.work+sb))},
-    room:{calendar:room.total,off:room.off,baseDays:room.work,bonusDays:rb,totalDays:room.work+rb,total:roundThousand(rr*(room.work+rb))}};
+    sang:{calendar:sang.total,off:sang.off,extraLeave:sangLeave,baseDays:sangNet,bonusDays:sb,totalDays:sangNet+sb,total:roundThousand(sr*(sangNet+sb))},
+    room:{calendar:room.total,off:room.off,extraLeave:roomLeave,baseDays:roomNet,bonusDays:rb,totalDays:roomNet+rb,total:roundThousand(rr*(roomNet+rb))}};
   $("sang-rate").textContent=money(sr);$("sang-calendar").textContent=sang.total+" ngày";$("sang-off").textContent=sang.off+" ngày";$("sang-days").textContent=sang.work+" công";$("sang-pay").textContent=money(result.sang.total);
   $("room-rate").textContent=money(rr);$("room-calendar").textContent=room.total+" ngày";$("room-off").textContent=room.off+" ngày";$("room-days").textContent=room.work+" công";$("room-pay").textContent=money(result.room.total);
   lastResult=result;return result;
 }
-["from","to","sang-bonus","room-bonus"].forEach(id=>$(id).addEventListener("change",calculate));
+["from","to","sang-bonus","room-bonus","sang-extra-leave","room-extra-leave"].forEach(id=>$(id).addEventListener("change",calculate));
 
 $("saveBtn").addEventListener("click",async()=>{
   const r=calculate();if(!r)return;
@@ -182,7 +193,7 @@ function printSlip(which,r){
 window.printPayslip=which=>{const r=calculate();if(r)printSlip(which,r);};
 $("printAllBtn").addEventListener("click",()=>{const r=calculate();if(r){printSlip("sang",r);setTimeout(()=>printSlip("room",r),500);}});
 $("resetBtn").addEventListener("click",()=>{
-  $("from").value="";$("to").value="";$("sang-bonus").checked=false;$("room-bonus").checked=false;
+  $("from").value="";$("to").value="";$("sang-bonus").checked=false;$("room-bonus").checked=false;$("sang-extra-leave").value=0;$("room-extra-leave").value=0;
   ["sang-rate","sang-calendar","sang-off","sang-days","sang-pay","room-rate","room-calendar","room-off","room-days","room-pay"].forEach(id=>$(id).textContent="—");
   $("dateError").textContent="";lastResult=null;
 });
