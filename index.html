@@ -68,7 +68,7 @@ input[type=date]{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:
       <button class="secondary print-one" onclick="printPayslip('sang')">In phiếu lương Sang</button>
     </article>
     <article class="card">
-      <h2>Buồng phòng</h2><div class="role">Nghỉ cố định: Thứ 7 hằng tuần</div>
+      <h2>Lễ tân – Linh</h2><div class="role">Nghỉ cố định: Thứ 7 hằng tuần</div>
       <div class="salary">5.000.000 đ/tháng</div>
       <div class="rows"><span>Đơn giá / công</span><strong id="room-rate">—</strong></div>
       <div class="rows"><span>Tổng ngày trong kỳ</span><strong id="room-calendar">—</strong></div>
@@ -76,7 +76,7 @@ input[type=date]{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:
       <div class="rows"><span>Ngày công thường</span><strong id="room-days">—</strong></div>
       <div class="bonus-check"><label><input type="checkbox" id="room-bonus"> Thưởng chuyên cần (cộng thêm 1 công)</label></div>
       <div class="total"><span>TỔNG LƯƠNG</span><b id="room-pay">—</b></div>
-      <button class="secondary print-one" onclick="printPayslip('room')">In phiếu lương Buồng phòng</button>
+      <button class="secondary print-one" onclick="printPayslip('room')">In phiếu lương Lễ tân – Linh</button>
     </article>
   </section>
 
@@ -112,7 +112,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const $ = id => document.getElementById(id);
-const money = n => Math.round(n).toLocaleString("vi-VN") + " đ";
+const roundThousand = n => Math.round(n / 1000) * 1000;
+const money = n => roundThousand(n).toLocaleString("vi-VN") + " đ";
 const fmtDate = s => s ? s.split("-").reverse().join("/") : "";
 let lastResult = null, historyCache = {};
 
@@ -129,8 +130,8 @@ function calculate(){
   const sang=countPeriod(start,end,0),room=countPeriod(start,end,6);
   const sr=7000000/26,rr=5000000/26,sb=$("sang-bonus").checked?1:0,rb=$("room-bonus").checked?1:0;
   const result={from:start,to:end,
-    sang:{calendar:sang.total,off:sang.off,baseDays:sang.work,bonusDays:sb,totalDays:sang.work+sb,total:Math.round(sr*(sang.work+sb))},
-    room:{calendar:room.total,off:room.off,baseDays:room.work,bonusDays:rb,totalDays:room.work+rb,total:Math.round(rr*(room.work+rb))}};
+    sang:{calendar:sang.total,off:sang.off,baseDays:sang.work,bonusDays:sb,totalDays:sang.work+sb,total:roundThousand(sr*(sang.work+sb))},
+    room:{calendar:room.total,off:room.off,baseDays:room.work,bonusDays:rb,totalDays:room.work+rb,total:roundThousand(rr*(room.work+rb))}};
   $("sang-rate").textContent=money(sr);$("sang-calendar").textContent=sang.total+" ngày";$("sang-off").textContent=sang.off+" ngày";$("sang-days").textContent=sang.work+" công";$("sang-pay").textContent=money(result.sang.total);
   $("room-rate").textContent=money(rr);$("room-calendar").textContent=room.total+" ngày";$("room-off").textContent=room.off+" ngày";$("room-days").textContent=room.work+" công";$("room-pay").textContent=money(result.room.total);
   lastResult=result;return result;
@@ -158,7 +159,7 @@ function renderHistory(){
     <div class="history-item">
       <div><b>${fmtDate(r.from)} – ${fmtDate(r.to)}</b><br><span style="color:#64748b">Kỳ lương</span></div>
       <div>Sang: <b>${money(r.sang?.total||0)}</b><br><span style="color:#64748b">${r.sang?.totalDays||0} công</span></div>
-      <div>Buồng phòng: <b>${money(r.room?.total||0)}</b><br><span style="color:#64748b">${r.room?.totalDays||0} công</span></div>
+      <div>Lễ tân – Linh: <b>${money(r.room?.total||0)}</b><br><span style="color:#64748b">${r.room?.totalDays||0} công</span></div>
       <button class="danger" data-delete="${key}">Xóa</button>
     </div>`).join("");
   $("historyList").querySelectorAll("[data-delete]").forEach(btn=>btn.addEventListener("click",async()=>{
@@ -167,7 +168,7 @@ function renderHistory(){
   }));
 }
 function printSlip(which,r){
-  const item=which==="sang"?r.sang:r.room,name=which==="sang"?"Pha chế – Sang":"Buồng phòng",monthly=which==="sang"?7000000:5000000;
+  const item=which==="sang"?r.sang:r.room,name=which==="sang"?"Pha chế – Sang":"Lễ tân – Linh",monthly=which==="sang"?7000000:5000000;
   const w=window.open("","_blank","width=760,height=800");
   if(!w){alert("Trình duyệt đang chặn cửa sổ in. Hãy cho phép pop-up rồi thử lại.");return;}
   w.document.write(`<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><title>Phiếu lương Luna Motel</title><style>body{font-family:Arial,sans-serif;padding:35px;color:#172033}h1{text-align:center;color:#172554;margin-bottom:4px}.sub{text-align:center;color:#64748b;margin-bottom:28px}.line{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid #ddd}.sum{font-size:20px;font-weight:bold;color:#1d4ed8;margin-top:12px}.sign{display:flex;justify-content:space-between;margin-top:65px;text-align:center}.sign div{width:40%}</style></head><body>

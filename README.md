@@ -18,7 +18,12 @@ Website không yêu cầu đăng nhập. Bất kỳ ai mở được website đ�
 5. Deploy.
 
 ## Chức năng
-- Tính công theo khoảng ngày, trừ Chủ nhật của Sang và Thứ 7 của buồng phòng.
+- Tính công theo khoảng ngày, trừ Chủ nhật của Sang và Thứ 7 của Lễ tân – Linh.
 - Tick chuyên cần cộng 1 công.
 - In phiếu lương chỉ hiển thị tổng công và tổng lương.
 - Lưu, xem và xóa lịch sử kỳ lương trên Firebase.
+
+
+## Cập nhật nhân sự và làm tròn
+- Vị trí Buồng phòng đã đổi thành Lễ tân – Linh; giữ nguyên mức lương 5.000.000 đ/tháng, định mức 26 công và nghỉ Thứ 7 hằng tuần.
+- Tiền lương và đơn giá hiển thị được làm tròn đến 1.000 đồng gần nhất.
