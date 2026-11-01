@@ -174,8 +174,8 @@ function printSlip(which,r){
   w.document.write(`<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><title>Phiếu lương Luna Motel</title><style>body{font-family:Arial,sans-serif;padding:35px;color:#172033}h1{text-align:center;color:#172554;margin-bottom:4px}.sub{text-align:center;color:#64748b;margin-bottom:28px}.line{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid #ddd}.sum{font-size:20px;font-weight:bold;color:#1d4ed8;margin-top:12px}.sign{display:flex;justify-content:space-between;margin-top:65px;text-align:center}.sign div{width:40%}</style></head><body>
   <h1>LUNA MOTEL</h1><div class="sub">PHIẾU LƯƠNG</div>
   <div class="line"><b>Nhân viên</b><span>${name}</span></div><div class="line"><b>Kỳ tính lương</b><span>${fmtDate(r.from)} đến ${fmtDate(r.to)}</span></div>
-  <div class="line"><span>Lương tháng</span><b>${money(monthly)}</b></div><div class="line"><span>Đơn giá một công</span><b>${money(monthly/26)}</b></div>
-  <div class="line"><span>Tổng công</span><b>${item.totalDays} công</b></div><div class="line sum"><span>TỔNG LƯƠNG</span><span>${money(item.total)}</span></div>
+  <div class="line"><span>Lương tháng</span><b>${money(monthly)}</b></div><div class="line"><span>Đơn giá một ngày công</span><b>${money(monthly/26)}</b></div>
+  <div class="line"><span>Tổng ngày công</span><b>${item.totalDays} công</b></div><div class="line sum"><span>TỔNG LƯƠNG</span><span>${money(item.total)}</span></div>
   <div class="sign"><div>Người lập phiếu<br><br><br>(Ký, ghi rõ họ tên)</div><div>Người nhận lương<br><br><br>(Ký, ghi rõ họ tên)</div></div>
   <script>window.onload=()=>window.print();<\/script></body></html>`);w.document.close();
 }
